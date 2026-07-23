@@ -136,13 +136,15 @@ const TOOL_GROUPS = [
   {
     label: "Market Discovery",
     tools: [
-      { name: "search_markets",       desc: "Full-text search across all markets" },
-      { name: "list_markets",          desc: "Paginated list with filters" },
-      { name: "get_top_markets",       desc: "Highest-volume markets" },
-      { name: "get_trending_markets",  desc: "Markets with rising activity" },
-      { name: "get_new_markets",       desc: "Recently created markets" },
-      { name: "get_resolving_markets", desc: "Markets closing within 7 days" },
-      { name: "compare_markets",       desc: "Side-by-side market comparison" },
+      { name: "search_markets",         desc: "Full-text search across all markets" },
+      { name: "list_markets",           desc: "Paginated list with filters" },
+      { name: "get_top_markets",        desc: "Highest-volume markets" },
+      { name: "get_trending_markets",   desc: "Markets with rising activity" },
+      { name: "get_new_markets",        desc: "Recently created markets" },
+      { name: "get_resolving_markets",  desc: "Markets closing within 7 days" },
+      { name: "get_breaking_markets",   desc: "Sharpest price move in the last hour" },
+      { name: "get_markets_by_timeframe", desc: "Active markets grouped by duration bucket (5m–long), optional asset filter" },
+      { name: "compare_markets",        desc: "Side-by-side market comparison" },
     ],
   },
   {
@@ -154,23 +156,42 @@ const TOOL_GROUPS = [
       { name: "get_market_liquidity",      desc: "Liquidity depth breakdown" },
       { name: "get_market_sentiment",      desc: "Crowd sentiment indicators" },
       { name: "get_market_signals",        desc: "Pre-computed momentum signals" },
-      { name: "get_market_orderbook",      desc: "Full bid/ask orderbook snapshot" },
+      { name: "get_market_health",         desc: "Data freshness check for one market" },
+      { name: "get_market_orderbook",      desc: "Current best bid/ask snapshot" },
+      { name: "get_market_orderbook_history", desc: "Orderbook snapshots over time (rolling 2-day window)" },
       { name: "get_market_price",          desc: "Current YES/NO prices" },
       { name: "get_market_price_history",  desc: "Historical price series" },
       { name: "get_market_trades",         desc: "Recent trade history" },
       { name: "get_market_candles",        desc: "OHLCV candlestick data (1m/5m/1h)" },
       { name: "get_market_positions",      desc: "Open positions in a market" },
       { name: "get_related_markets",       desc: "Semantically similar markets" },
+      { name: "get_markets_calibration",   desc: "Platform-wide: price before resolution vs actual outcome, Brier score" },
     ],
   },
   {
     label: "Wallet",
     tools: [
+      { name: "search_wallets",            desc: "Browse/filter wallets by volume, trades, category, recency" },
       { name: "get_wallet_summary",        desc: "Portfolio value and P&L" },
       { name: "get_wallet_activity",       desc: "Full trade and activity history" },
       { name: "get_wallet_markets",        desc: "All markets a wallet has traded" },
       { name: "get_wallet_open_positions", desc: "Current open positions" },
       { name: "get_wallet_onchain",        desc: "Verified on-chain transactions" },
+      { name: "get_wallet_pnl",            desc: "Real realized/unrealized P&L per market, not just volume" },
+      { name: "get_wallet_calibration",    desc: "Brier score on resolved positions + unrealized edge on open ones" },
+      { name: "get_leaderboard",           desc: "Top wallets by traded volume over a window" },
+      { name: "get_positions",             desc: "Open positions for a wallet (Polymarket Data API)" },
+      { name: "get_closed_positions",      desc: "Closed/settled positions for a wallet" },
+      { name: "watch_wallet",              desc: "Register a wallet for richer activity tracking" },
+      { name: "unwatch_wallet",            desc: "Stop tracking a wallet" },
+      { name: "get_watched_wallets",       desc: "List all currently watched wallets" },
+    ],
+  },
+  {
+    label: "Wallet Clustering",
+    tools: [
+      { name: "get_wallet_clusters", desc: "Wallets sharing an on-chain USDC funding source — a Sybil/multi-account signal" },
+      { name: "get_wallet_cluster",  desc: "One wallet's funding source and every wallet sharing it" },
     ],
   },
   {
@@ -187,12 +208,17 @@ const TOOL_GROUPS = [
   {
     label: "Platform",
     tools: [
-      { name: "get_platform_stats", desc: "Global volume, trade counts, market totals" },
-      { name: "get_recent_trades",  desc: "Latest trades across all markets" },
-      { name: "get_batch_prices",   desc: "Current prices for multiple markets at once" },
+      { name: "get_platform_stats",  desc: "Global volume, trade counts, market totals" },
+      { name: "get_recent_trades",   desc: "Latest trades across all markets" },
+      { name: "get_batch_prices",    desc: "Current prices for multiple markets at once" },
+      { name: "get_current_time",    desc: "Authoritative server time — don't infer 'now' from market data" },
+      { name: "get_pipeline_status", desc: "Data-freshness check across discovery/ingestion/trades" },
+      { name: "get_top_signals",     desc: "Strongest live trading signals across every market" },
     ],
   },
 ];
+
+const TOOL_COUNT = TOOL_GROUPS.reduce((n, g) => n + g.tools.length, 0);
 
 const PROMPTS = [
   "What are the top 5 prediction markets by volume right now?",
@@ -370,7 +396,7 @@ export default function McpPage() {
         <div className="mcp-hero">
           <div className="mcp-hero-badge">
             <span style={{ width:6, height:6, borderRadius:"50%", background:B.green, display:"inline-block" }}></span>
-            Model Context Protocol · 34 live tools
+            Model Context Protocol · {TOOL_COUNT} live tools
           </div>
           <h1 className="mcp-hero-h1">
             Ask your AI agent about<br />
@@ -535,8 +561,11 @@ export default function McpPage() {
 
         {/* ── TOOLS ── */}
         <div className="mcp-section">
-          <h2 className="mcp-h2">34 tools, live data</h2>
+          <h2 className="mcp-h2">{TOOL_COUNT} tools, live data</h2>
           <p className="mcp-sub">Every tool calls the PMAxis REST API in real time. No stale data.</p>
+          <p className="mcp-sub" style={{ marginTop: -32 }}>
+            <strong>Cursor, Windsurf, and the Python SDK connect via the hosted SSE server and get all {TOOL_COUNT} tools.</strong> The <code style={{ fontFamily:"monospace", background:"var(--surface)", border:"1px solid var(--border)", borderRadius:4, padding:"2px 6px", fontSize:12 }}>@pmaxis/mcp-server</code> npm package (used by the Claude Desktop / npm setup above) is on an older release and currently exposes 34 of these — the newer wallet-calibration, wallet-clustering, and orderbook-history tools aren&apos;t in it yet. Prefer Cursor/Windsurf/Python if you need full coverage today.
+          </p>
           {TOOL_GROUPS.map(group => (
             <div key={group.label}>
               <div className="tool-group-label">{group.label}</div>
@@ -558,7 +587,7 @@ export default function McpPage() {
             <h2 className="mcp-cta-h2">
               Ready to <span className="mcp-grad-text">start?</span>
             </h2>
-            <p className="mcp-cta-sub">Free API key. No credit card. All 34 tools on the free tier.</p>
+            <p className="mcp-cta-sub">Free API key. No credit card. All {TOOL_COUNT} tools on the free tier.</p>
             <div style={{ display:"flex", gap:14, justifyContent:"center", flexWrap:"wrap" }}>
               <a href={`${API_URL}/signup`} className="mcp-hero-cta">Get free API key</a>
               <a href={`${API_URL}/docs`} style={{ display:"inline-flex", alignItems:"center", fontSize:14, fontWeight:600, color:B.grey, padding:"13px 28px", borderRadius:6, textDecoration:"none", border:`1px solid #2a2a2a`, fontFamily:"'Space Grotesk', sans-serif", transition:"border-color 0.15s" }}>
