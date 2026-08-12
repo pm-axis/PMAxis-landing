@@ -191,7 +191,7 @@ const TOOL_GROUPS = [
     label: "Wallet Clustering",
     tools: [
       { name: "get_wallet_clusters", desc: "Wallets sharing an on-chain USDC funding source — a Sybil/multi-account signal" },
-      { name: "get_wallet_cluster",  desc: "One wallet's funding source and every wallet sharing it" },
+      { name: "get_wallet_cluster",  desc: "One wallet's funding source and every wallet sharing it, plus wallets trading in lockstep with it" },
     ],
   },
   {

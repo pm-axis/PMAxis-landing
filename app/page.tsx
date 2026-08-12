@@ -25,23 +25,23 @@ const FEATURES = [
   { title: "On-Chain Trades",     body: "Access verified on-chain transaction data and wallet activity directly from the blockchain.", icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg> },
   { title: "Signals & Analytics", body: "Pre-computed market signals, momentum indicators, and statistical summaries ready to consume.", icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg> },
   { title: "Instant API Key",     body: "Sign up, get your key in seconds, and start making requests. No OAuth flows, no setup friction.", icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0 3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg> },
-  { title: "Usage Dashboard",     body: "Track requests, monitor rate limits, rotate keys, and view 7-day usage history from your dashboard.", icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg> },
+  { title: "Usage Dashboard",     body: "Track credit usage, rotate keys, manage webhooks, and view 7-day usage history from your dashboard.", icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg> },
 ];
 
 const TIERS = [
   {
-    name: "Free", price: "$0", period: "forever", limit: "60 requests / min",
-    features: ["Full REST API access", "WebSocket stream", "7-day usage history", "Key rotation"],
+    name: "Free", price: "$0", period: "forever", limit: "5,000 credits / month · 5 / sec burst",
+    features: ["Full REST API access", "WebSocket stream — 5 connections", "1 API key · 5 webhooks", "7-day usage history"],
     cta: "Get started free", href: `${API_URL}/signup`, soon: false,
   },
   {
-    name: "Pro", price: "—", period: "", limit: "600 requests / min",
-    features: ["Everything in Free", "10× higher rate limit", "Priority support", "Usage analytics"],
+    name: "Pro", price: "—", period: "", limit: "100,000 credits / month · 25 / sec burst",
+    features: ["Everything in Free", "20× the monthly credits", "WebSocket stream — 50 connections", "3 API keys · 2,500 webhooks"],
     cta: "Coming soon", href: "#", soon: true,
   },
   {
-    name: "Enterprise", price: "Custom", period: "", limit: "Unlimited",
-    features: ["Custom rate limits", "Dedicated infrastructure", "SLA guarantee", "White-glove onboarding"],
+    name: "Enterprise", price: "Custom", period: "", limit: "Custom credits & burst",
+    features: ["Custom credit & connection limits", "Dedicated infrastructure", "SLA guarantee", "White-glove onboarding"],
     cta: "Coming soon", href: "#", soon: true,
   },
 ];
