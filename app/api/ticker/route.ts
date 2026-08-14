@@ -21,12 +21,19 @@ export async function GET() {
     }
 
     const markets = await res.json();
-    const rows = (Array.isArray(markets) ? markets : []).map((m: Record<string, unknown>) => ({
-      id: String(m.market_id ?? m.slug ?? m.question),
-      name: String(m.question ?? "Untitled market"),
-      price: typeof m.price === "number" ? m.price : Number(m.price ?? 0),
-      volume: typeof m.volume_period === "number" ? m.volume_period : Number(m.volume_24h ?? m.volume ?? 0),
-    }));
+    const rows = (Array.isArray(markets) ? markets : [])
+      .map((m: Record<string, unknown>) => {
+        const question = typeof m.question === "string" ? m.question.trim() : "";
+        const slug = typeof m.slug === "string" ? m.slug.trim() : "";
+        const name = question || (slug ? slug.replace(/-/g, " ") : `Market ${m.market_id}`);
+        return {
+          id: String(m.market_id ?? m.slug ?? m.question),
+          name,
+          price: typeof m.price === "number" ? m.price : Number(m.price ?? 0),
+          volume: typeof m.volume_period === "number" ? m.volume_period : Number(m.volume_24h ?? m.volume ?? 0),
+        };
+      })
+      .filter(r => r.name.length > 0);
 
     return NextResponse.json({ rows });
   } catch {
