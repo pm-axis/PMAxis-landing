@@ -11,7 +11,7 @@ export default function Reveal({ children }: { children: React.ReactNode }) {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) { setShown(true); return; }
     const obs = new IntersectionObserver(([entry]) => {
       if (entry.isIntersecting) { setShown(true); obs.disconnect(); }
-    }, { threshold: 0.12, rootMargin: "0px 0px -60px 0px" });
+    }, { threshold: 0, rootMargin: "0px 0px -80px 0px" });
     obs.observe(el);
     return () => obs.disconnect();
   }, []);

@@ -25,7 +25,7 @@ const CASES = [
 
 export default function UseCases() {
   return (
-    <div className="usecases-row">
+    <div className="usecases-stack">
       <div className="usecases-list">
         {CASES.map((c, i) => (
           <div key={c.title} className="usecases-item" style={{ animationDelay: `${i * 90}ms` }}>
@@ -37,9 +37,7 @@ export default function UseCases() {
           </div>
         ))}
       </div>
-      <div className="usecases-art-wrap">
-        <UseCasesArt />
-      </div>
+      <UseCasesArt />
     </div>
   );
 }

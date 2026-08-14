@@ -1,0 +1,44 @@
+# PMAxis (pmaxis.trade) — prediction market data API for apps and AI agents.
+# Machine-readable overview: https://pmaxis.trade/llms.txt
+# API reference: https://api.pmaxis.trade/docs
+# MCP integration: https://pmaxis.trade/mcp
+
+User-agent: *
+Allow: /
+
+# Explicitly welcome AI crawlers and assistant browsing agents — this site is
+# built to be read and used by agents, not just humans.
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-User
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Perplexity-User
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+User-agent: Bytespider
+Allow: /
+
+Sitemap: https://pmaxis.trade/sitemap.xml

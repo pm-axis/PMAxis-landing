@@ -1,9 +1,14 @@
 "use client";
 import { useEffect, useState } from "react";
 import OrderbookDepth from "./OrderbookDepth";
+import MarketsLiveStat from "./MarketsLiveStat";
+import WalletPnl from "./WalletPnl";
+import SignalGauge from "./SignalGauge";
+import StreamPulse from "./StreamPulse";
 import { highlightJSON } from "./highlight";
 
-const AUTO_MS = 4200;
+const AUTO_MS = 2800;
+const PAUSE_TIMEOUT_MS = 6000;
 
 type Tab = {
   id: string;
@@ -14,67 +19,70 @@ type Tab = {
   json: string;
 };
 
+// JSON examples below are trimmed from real, documented API responses
+// (docs/api/api-reference.md) — not invented sample data.
 const TABS: Tab[] = [
   {
-    id: "markets", label: "Markets", method: "GET", path: "/v1/markets",
-    desc: "Search and list every active prediction market with live pricing.",
+    id: "markets", label: "Markets", method: "GET", path: "/v1/markets/{id}",
+    desc: "Full market profile with live pricing, straight from Postgres + Redis.",
     json: `{
-  "id": "will-fed-cut-q1-2026",
-  "question": "Fed cuts rates in Q1 2026?",
-  "yes_price": 0.62,
-  "no_price": 0.38,
-  "volume_24h": 4120000,
-  "category": "macro",
-  "resolves": "2026-03-31"
+  "market_id": "3017850",
+  "question": "Bitcoin Up or Down - July 23, 12PM ET",
+  "status": "ACTIVE",
+  "category": "crypto",
+  "outcomes": ["Up", "Down"],
+  "yes_price": 0.985,
+  "no_price": 0.015,
+  "best_bid": 0.98,
+  "best_ask": 0.99,
+  "volume_24h": 1192892.4
 }`,
   },
   {
-    id: "orderbook", label: "Orderbook", method: "GET", path: "/v1/markets/{id}/orderbook",
-    desc: "Full bid/ask depth snapshot, updated on every fill.",
+    id: "orderbook", label: "Orderbook", method: "GET", path: "/v1/markets/{id}/liquidity",
+    desc: "Best bid/ask and spread, served live from Redis. Today's feed carries one level per side.",
     json: `{
-  "market_id": "will-fed-cut-q1-2026",
-  "bids": [
-    { "price": 0.61, "size": 18400 },
-    { "price": 0.60, "size": 22100 }
-  ],
-  "asks": [
-    { "price": 0.63, "size": 15900 },
-    { "price": 0.64, "size": 30200 }
-  ]
+  "market_id": "3030127",
+  "best_bid": 0.49,
+  "best_ask": 0.5,
+  "spread": 0.01,
+  "mid_price": 0.495,
+  "bids": [{ "price": "0.49", "size": "105404.62" }],
+  "asks": [{ "price": "0.5", "size": "105404.62" }]
 }`,
   },
   {
-    id: "wallets", label: "Wallets", method: "GET", path: "/v1/wallets/{address}/pnl",
-    desc: "Realized and unrealized P&L, calibration, and open positions for any wallet.",
+    id: "wallets", label: "Wallets", method: "GET", path: "/v1/wallets/{address}/summary",
+    desc: "Trade volume, activity window, and market count for any wallet on Polymarket.",
     json: `{
-  "address": "0x7a3f...9c21",
-  "realized_pnl": 48250.12,
-  "unrealized_pnl": 6120.40,
-  "brier_score": 0.14,
-  "open_positions": 7,
-  "win_rate": 0.71
+  "wallet": "0xAdA100Db00Ca00073811820692005400218FcE1f",
+  "total_trades": 4820,
+  "total_volume": 1250000.5,
+  "buy_volume": 640000.2,
+  "sell_volume": 610000.3,
+  "market_count": 312
 }`,
   },
   {
     id: "signals", label: "Signals", method: "GET", path: "/v1/markets/{id}/signals",
-    desc: "Pre-computed momentum, sentiment, and breakout signals — no modeling required.",
+    desc: "Pre-computed momentum signals with severity and threshold — no modeling required.",
     json: `{
-  "market_id": "ai-model-tops-benchmark",
-  "momentum": "rising",
-  "sentiment": 0.74,
-  "breakout_score": 8.2,
-  "confidence": "high"
+  "signal_id": "4615c316b0d11ab2c9461d3ded5ef69386189630",
+  "market_id": "3017850",
+  "signal_type": "momentum",
+  "severity": "medium",
+  "value": 0.5618,
+  "threshold": 0.05
 }`,
   },
   {
     id: "stream", label: "Stream", method: "WS", path: "/stream",
-    desc: "Subscribe to price, trade, and orderbook events over one WebSocket connection.",
-    json: `> { "subscribe": ["price", "trades"], "market_id": "*" }
+    desc: "Subscribe to price, trade, and signal events over one authenticated WebSocket connection.",
+    json: `ws://api.pmaxis.trade/stream?api_key=YOUR_KEY
 
-< { "type": "trade", "market_id": "btc-120k-march",
-    "side": "YES", "price": 0.41, "size": 500 }
-< { "type": "price", "market_id": "btc-120k-march",
-    "yes": 0.415, "no": 0.585 }`,
+> { "subscribe": ["price", "trades"], "market_id": "*" }
+< { "type": "trade", "market_id": "3017850",
+    "side": "Up", "price": 0.985, "size": 500 }`,
   },
 ];
 
@@ -93,6 +101,15 @@ export default function ToolsShowcase() {
       });
     }, AUTO_MS);
     return () => clearInterval(id);
+  }, [paused]);
+
+  // A phantom hover (content shifting under a stationary cursor on load/scroll)
+  // can pause this with no matching mouseleave ever firing. Auto-resume after
+  // a few seconds so it never gets permanently stuck on one tab.
+  useEffect(() => {
+    if (!paused) return;
+    const id = setTimeout(() => setPaused(false), PAUSE_TIMEOUT_MS);
+    return () => clearTimeout(id);
   }, [paused]);
 
   return (
@@ -124,7 +141,11 @@ export default function ToolsShowcase() {
           }}>{tab.method}</span>
           <code className="tools-path">{tab.path}</code>
           <p className="tools-desc">{tab.desc}</p>
+          {tab.id === "markets" && <MarketsLiveStat />}
           {tab.id === "orderbook" && <OrderbookDepth />}
+          {tab.id === "wallets" && <WalletPnl />}
+          {tab.id === "signals" && <SignalGauge />}
+          {tab.id === "stream" && <StreamPulse active={active === "stream" && !paused} />}
         </div>
         <div className="code-snippet tools-code tools-fade-in">
           <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>

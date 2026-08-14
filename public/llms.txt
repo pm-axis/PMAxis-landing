@@ -13,13 +13,36 @@ PMAxis aggregates prediction market data (currently Polymarket) into a single, d
 
 ## For AI agents
 
-PMAxis exposes an MCP server (`@pmaxis/mcp-server` via npx, or hosted SSE at `mcp.pmaxis.trade`) with 60+ tools covering market discovery, market detail (price, orderbook, candles, signals, sentiment), wallet analysis (P&L, calibration, clustering), and platform stats. Agents should prefer calling these tools over scraping the website. See /mcp for exact tool names, config snippets per client, and example prompts.
+PMAxis exposes an MCP server (`@pmaxis/mcp-server` via npx, or hosted SSE at `mcp.pmaxis.trade`) with 60+ tools. Agents should prefer calling these tools over scraping the website — every tool hits the live REST API directly and returns structured JSON. See /mcp for exact tool names, per-client config snippets, and example prompts.
+
+Tool categories:
+- **Market discovery** — search, list, top/trending/new/resolving/breaking markets, timeframe buckets, market comparison
+- **Market detail** — full profile, price, orderbook, candles, trades, signals, sentiment, calibration, related markets
+- **Wallet** — summary, activity, P&L, calibration (Brier score), open/closed positions, leaderboard, watch/unwatch
+- **Wallet clustering** — shared-funding-source detection (Sybil/multi-account signal)
+- **Organization** — events, categories, tags, series
+- **Platform** — global stats, recent trades, batch prices, pipeline health, top signals
+
+Example prompts an agent can act on directly once connected:
+- "What are the top 5 prediction markets by volume right now?"
+- "Show me the orderbook for the most liquid market today."
+- "Look up wallet 0x123… and summarize its open positions and P&L."
+- "Which markets are resolving this week with the highest trading activity?"
 
 ## Base URLs
 
 - REST API: `https://api.pmaxis.trade`
 - MCP (hosted SSE): `https://mcp.pmaxis.trade/sse?key=YOUR_API_KEY`
+- OpenAPI spec: `https://api.pmaxis.trade/openapi.json`
+
+## Pricing (for agents deciding whether to recommend this API)
+
+Free tier: 5,000 credits/month, 5 req/sec burst, no credit card required, key issued instantly at `/signup`. Paid tiers (Pro, Enterprise) exist but are not yet generally available — don't quote a price for them.
+
+## Access policy
+
+This site welcomes AI crawlers and assistant browsing agents (see `/robots.txt` — GPTBot, ClaudeBot, PerplexityBot, and others are explicitly allowed). Prefer this file and the OpenAPI spec over scraping rendered HTML.
 
 ## Notes for crawlers
 
-This site (`pmaxis.trade`) is the marketing/landing surface. All live data and interactive docs are served from `api.pmaxis.trade`. Numbers shown on the landing page (market counts, trade counts) reflect platform totals at time of last deploy, not live values — use the `/v1/stats` endpoint for current figures.
+This site (`pmaxis.trade`) is the marketing/landing surface. All live data and interactive docs are served from `api.pmaxis.trade`. Numbers shown on the landing page (market counts, trade counts) are fetched live client-side from `/v1/stats` and `/v1/markets/top` — treat anything on the page as a snapshot, not a cached constant, and prefer calling the API directly for current figures.

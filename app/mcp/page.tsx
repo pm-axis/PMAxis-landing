@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import Nav from "../Nav";
+import Footer from "../Footer";
 import Reveal from "../Reveal";
 import HeroArt from "../HeroArt";
 import { highlightJSON } from "../highlight";
@@ -22,16 +23,6 @@ const B = {
   grad: "linear-gradient(135deg, #00E676 0%, #8B5CF6 100%)",
 };
 
-/* ── logo ──────────────────────────────────────────────────── */
-const LOGO = (size = 36) => (
-  <svg width={size} height={size} viewBox="0 0 803 795" fill="none">
-    <path fill="var(--text)" d="M719.962 114.503C724.439 116.738 746.095 136.885 751.202 141.275C743.13 152.558 727.925 169.756 718.52 180.14C667.116 237.986 604.881 285.207 535.329 319.136C528.842 322.253 501.635 334.541 495.686 335.719C493.671 334.794 493.692 334.098 492.165 332.003C481.767 318.552 471.393 311.209 457.07 302.886C532.805 280.515 608.565 231.922 664.325 176.745C684.543 156.739 701.958 136.391 719.962 114.503Z"/>
-    <path fill="var(--text)" d="M103.731 114.306C106.532 116.771 116.373 129.166 119.413 132.747C128.996 144.095 139.01 155.071 149.433 165.651C213.595 230.118 280.396 274.662 366.923 302.87C352.429 310.952 342.084 318.858 331.657 332.058L328.841 336.043C319.39 333.204 296.981 322.854 288.065 318.523C216.559 283.785 152.851 232.607 99.9718 173.495C90.9908 163.455 80.8168 152.054 72.5908 141.466C80.8318 133.892 95.1408 120.907 103.731 114.306Z"/>
-    <path fill="var(--text)" d="M500.639 448.854C510.914 451.537 533.17 462.09 542.691 466.637C603.572 495.713 657.966 537.098 703.779 586.511C719.932 603.934 737.715 624.431 751.412 643.924C743.385 651.277 729.34 662.024 720.529 669.194C717.837 667.836 711.304 658.002 708.901 655.026C699.702 643.633 690.268 632.508 680.354 621.743C622.903 558.485 550.473 510.682 469.721 482.728C482.46 472.687 492.344 462.846 500.639 448.854Z"/>
-    <path fill="var(--text)" d="M322.57 449.109C324.527 450.34 331.226 460.882 333.985 463.96C341.099 471.897 346.509 476.457 354.784 482.779C251.686 517.317 170.299 583.28 104.517 668.566L103.202 668.709C97.76 665.303 78.849 649.187 72.52 644.052C81.2 630.876 98.635 610.478 109.165 598.717C157.332 544.918 214.867 498.845 280.012 467.285C293.255 460.869 308.655 453.904 322.57 449.109Z"/>
-    <path fill={B.green} d="M404.129 336.369C437.402 331.991 467.935 355.383 472.368 388.649C476.801 421.915 453.459 452.487 420.201 456.975C386.865 461.473 356.206 438.064 351.762 404.721C347.319 371.378 370.778 340.757 404.129 336.369Z"/>
-  </svg>
-);
 
 /* ── data ──────────────────────────────────────────────────── */
 const CLAUDE_CONFIG = `{
@@ -348,8 +339,6 @@ export default function McpPage() {
         .mcp-cta-sub { font-size: 15px; color: ${B.grey}; margin-bottom: 40px; max-width: 380px; margin-left: auto; margin-right: auto; line-height: 1.7; }
 
         /* footer */
-        .mcp-footer-inner { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; padding: 32px 24px; max-width: 1180px; margin: 0 auto; }
-        .mcp-footer-links { display: flex; gap: 24px; flex-wrap: wrap; }
 
         @media (max-width: 640px) {
           .mcp-hero-h1 { font-size: 30px; }
@@ -359,7 +348,6 @@ export default function McpPage() {
           .tool-list { column-count: 1; }
           .agent-tabs { gap: 8px; }
           .agent-tab { font-size: 12px; padding: 7px 12px; }
-          .mcp-footer-inner { flex-direction: column; align-items: flex-start; }
         }
       `}</style>
 
@@ -577,21 +565,7 @@ export default function McpPage() {
           </div>
         </div>
 
-        {/* ── FOOTER ── */}
-        <footer style={{ borderTop:"1px solid var(--border)", background:"var(--bg)" }}>
-          <div className="mcp-footer-inner">
-            <div style={{ display:"flex", alignItems:"center", gap:10 }}>
-              {LOGO(24)}
-              <span style={{ fontSize:14, fontWeight:600, color:"var(--text)", fontFamily:"var(--font-geist-sans), sans-serif" }}>PMAxis</span>
-            </div>
-            <div className="mcp-footer-links">
-              {[["Docs",`${API_URL}/docs`],["Status",`${API_URL}/status`],["MCP","/mcp"],["Sign up",`${API_URL}/signup`],["Login",`${API_URL}/login`]].map(([l,h])=>(
-                <a key={l} href={h} style={{ fontSize:12, color:"var(--muted)", textDecoration:"none", fontFamily:"var(--font-geist-sans), sans-serif" }}>{l}</a>
-              ))}
-            </div>
-            <div style={{ fontSize:12, color:"var(--muted)", fontFamily:"var(--font-geist-sans), sans-serif" }}>© 2026 PMAxis. All rights reserved.</div>
-          </div>
-        </footer>
+        <Footer />
 
       </div>
     </>
