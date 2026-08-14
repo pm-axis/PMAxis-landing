@@ -1,0 +1,25 @@
+# PMAxis
+
+> Prediction market data API. Real-time prices, orderbooks, trades, signals, and on-chain wallet data across every prediction market PMAxis indexes, exposed as a REST API, WebSocket stream, and an MCP server for AI agents.
+
+PMAxis aggregates prediction market data (currently Polymarket) into a single, developer-friendly interface. It is built for two kinds of consumers: applications calling the REST/WebSocket API directly, and AI agents connecting via the Model Context Protocol (MCP).
+
+## Core docs
+
+- [API Reference](https://api.pmaxis.trade/docs): full REST endpoint reference (markets, orderbooks, candles, signals, trades, stats)
+- [API Status](https://api.pmaxis.trade/status): live uptime and latency
+- [MCP integration guide](https://pmaxis.trade/mcp): how to connect Claude Desktop, Cursor, Windsurf, or a custom MCP client; full tool catalog
+- [Sign up](https://api.pmaxis.trade/signup): free API key, 5,000 credits/month, no credit card
+
+## For AI agents
+
+PMAxis exposes an MCP server (`@pmaxis/mcp-server` via npx, or hosted SSE at `mcp.pmaxis.trade`) with 60+ tools covering market discovery, market detail (price, orderbook, candles, signals, sentiment), wallet analysis (P&L, calibration, clustering), and platform stats. Agents should prefer calling these tools over scraping the website. See /mcp for exact tool names, config snippets per client, and example prompts.
+
+## Base URLs
+
+- REST API: `https://api.pmaxis.trade`
+- MCP (hosted SSE): `https://mcp.pmaxis.trade/sse?key=YOUR_API_KEY`
+
+## Notes for crawlers
+
+This site (`pmaxis.trade`) is the marketing/landing surface. All live data and interactive docs are served from `api.pmaxis.trade`. Numbers shown on the landing page (market counts, trade counts) reflect platform totals at time of last deploy, not live values — use the `/v1/stats` endpoint for current figures.

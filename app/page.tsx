@@ -1,48 +1,38 @@
-import ThemeToggle from "./ThemeToggle";
+import Nav from "./Nav";
+import HeroArt from "./HeroArt";
+import Ticker from "./Ticker";
+import PricingCalculator from "./PricingCalculator";
+import ToolsShowcase from "./ToolsShowcase";
+import DevPlatform from "./DevPlatform";
+import Reveal from "./Reveal";
+import AgentFlow from "./AgentFlow";
+import UseCases from "./UseCases";
 
 const API_URL = "https://api.pmaxis.trade";
 
-const NAV_LINKS = [
-  { label: "Docs",   href: `${API_URL}/docs` },
-  { label: "Status", href: `${API_URL}/status` },
-  { label: "MCP",    href: "/mcp" },
-];
-
-const ENDPOINTS = [
-  { method: "GET", path: "/v1/markets",                desc: "List all prediction markets" },
-  { method: "GET", path: "/v1/markets/{id}/price",     desc: "Live price for a market" },
-  { method: "GET", path: "/v1/markets/{id}/orderbook", desc: "Full orderbook snapshot" },
-  { method: "GET", path: "/v1/markets/{id}/candles",   desc: "OHLCV candlestick data" },
-  { method: "GET", path: "/v1/markets/{id}/signals",   desc: "Signals and analytics" },
-  { method: "GET", path: "/v1/trades/recent",          desc: "Latest trades across markets" },
-  { method: "GET", path: "/v1/stats",                  desc: "Platform-wide statistics" },
-  { method: "WS",  path: "/stream",                    desc: "Real-time WebSocket feed" },
-];
-
-const FEATURES = [
-  { title: "Live Market Data",    body: "Prices, orderbooks, and trade history updated in real time across thousands of prediction markets.", icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M3 12h18M3 6l9-3 9 3M3 18l9 3 9-3"/></svg> },
-  { title: "WebSocket Stream",    body: "Subscribe to live price, orderbook, trade, and signal events with sub-second latency.", icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M5 12.55a11 11 0 0 1 14.08 0M1.42 9a16 16 0 0 1 21.16 0M8.53 16.11a6 6 0 0 1 6.95 0M12 20h.01"/></svg> },
-  { title: "On-Chain Trades",     body: "Access verified on-chain transaction data and wallet activity directly from the blockchain.", icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg> },
-  { title: "Signals & Analytics", body: "Pre-computed market signals, momentum indicators, and statistical summaries ready to consume.", icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg> },
-  { title: "Instant API Key",     body: "Sign up, get your key in seconds, and start making requests. No OAuth flows, no setup friction.", icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0 3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg> },
-  { title: "Usage Dashboard",     body: "Track credit usage, rotate keys, manage webhooks, and view 7-day usage history from your dashboard.", icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg> },
-];
-
-const TIERS = [
+const ENDPOINT_GROUPS = [
   {
-    name: "Free", price: "$0", period: "forever", limit: "5,000 credits / month · 5 / sec burst",
-    features: ["Full REST API access", "WebSocket stream — 5 connections", "1 API key · 5 webhooks", "7-day usage history"],
-    cta: "Get started free", href: `${API_URL}/signup`, soon: false,
+    label: "Markets",
+    endpoints: [
+      { method: "GET", path: "/v1/markets",                desc: "List all prediction markets" },
+      { method: "GET", path: "/v1/markets/{id}/price",     desc: "Live price for a market" },
+      { method: "GET", path: "/v1/markets/{id}/orderbook", desc: "Full orderbook snapshot" },
+      { method: "GET", path: "/v1/markets/{id}/candles",   desc: "OHLCV candlestick data" },
+      { method: "GET", path: "/v1/markets/{id}/signals",   desc: "Signals and analytics" },
+    ],
   },
   {
-    name: "Pro", price: "—", period: "", limit: "100,000 credits / month · 25 / sec burst",
-    features: ["Everything in Free", "20× the monthly credits", "WebSocket stream — 50 connections", "3 API keys · 2,500 webhooks"],
-    cta: "Coming soon", href: "#", soon: true,
+    label: "Trades & stats",
+    endpoints: [
+      { method: "GET", path: "/v1/trades/recent",          desc: "Latest trades across markets" },
+      { method: "GET", path: "/v1/stats",                  desc: "Platform-wide statistics" },
+    ],
   },
   {
-    name: "Enterprise", price: "Custom", period: "", limit: "Custom credits & burst",
-    features: ["Custom credit & connection limits", "Dedicated infrastructure", "SLA guarantee", "White-glove onboarding"],
-    cta: "Coming soon", href: "#", soon: true,
+    label: "Realtime",
+    endpoints: [
+      { method: "WS",  path: "/stream",                    desc: "Real-time WebSocket feed" },
+    ],
   },
 ];
 
@@ -57,15 +47,9 @@ const LOGO = (size = 36) => (
 );
 
 const s = {
-  nav:        { position:"sticky" as const, top:0, zIndex:50, background:"var(--bg)", borderBottom:"1px solid var(--border)", backdropFilter:"blur(8px)" },
-  navInner:   { maxWidth:1024, margin:"0 auto", padding:"0 24px", height:72, display:"flex", alignItems:"center", justifyContent:"space-between" },
-  brand:      { display:"flex", alignItems:"center", gap:12, textDecoration:"none" },
-  brandName:  { fontSize:20, fontWeight:700, letterSpacing:"-0.02em", color:"var(--text)" },
-  navLinks:   { display:"flex", alignItems:"center", gap:24 },
-  navLink:    { fontSize:13, color:"var(--muted)", textDecoration:"none" },
   btnGreen:   { fontSize:13, fontWeight:700, background:"var(--green)", color:"var(--bg)", padding:"8px 16px", borderRadius:5, textDecoration:"none" },
   btnOutline: { fontSize:14, fontWeight:500, color:"var(--text)", border:"1px solid var(--border)", padding:"12px 24px", borderRadius:6, textDecoration:"none", background:"var(--surface)" },
-  section:    { maxWidth:1024, margin:"0 auto", padding:"0 24px" },
+  section:    { maxWidth:1180, margin:"0 auto", padding:"0 24px" },
   card:       { background:"var(--surface)", border:"1px solid var(--border)", borderRadius:12, padding:24 },
   h2:         { fontFamily:"var(--font-serif), Georgia, serif", fontSize:38, letterSpacing:"-0.02em", color:"var(--text)", marginBottom:12 },
   sub:        { fontSize:15, color:"var(--muted)", lineHeight:1.7, maxWidth:480, marginBottom:56 },
@@ -77,27 +61,24 @@ export default function Home() {
   return (
     <>
       <style>{`
-        .nav-links { display: flex; align-items: center; gap: 24px; }
-        .nav-link-item { display: block; }
         .hero-h1 { font-size: 54px; line-height: 1.08; letter-spacing: -0.03em; }
         .hero-badge { display: inline-flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 700; padding: 6px 14px; border-radius: 999px; margin-bottom: 32px; letter-spacing: 0.08em; text-transform: uppercase; }
         .hero-sub { font-size: 17px; color: var(--muted); line-height: 1.7; max-width: 520px; margin: 0 auto 40px; }
         .hero-btns { display: flex; align-items: center; justify-content: center; gap: 16px; flex-wrap: wrap; }
-        .stats-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 32px; padding: 32px 24px; text-align: center; max-width: 1024px; margin: 0 auto; }
+        .stats-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 32px; padding: 32px 24px; text-align: center; max-width: 1180px; margin: 0 auto; }
         .stat-val { font-size: 28px; font-weight: 700; letter-spacing: -0.02em; color: var(--text); }
         .features-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px,1fr)); gap: 16px; }
         .pricing-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px,1fr)); gap: 16px; }
         .endpoint-row { display: flex; align-items: center; gap: 16px; padding: 14px 24px; }
         .endpoint-desc { font-size: 13px; color: var(--muted); }
-        .footer-inner { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; padding: 32px 24px; max-width: 1024px; margin: 0 auto; }
+        .footer-inner { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; padding: 32px 24px; max-width: 1180px; margin: 0 auto; }
         .footer-links { display: flex; gap: 24px; }
         .code-snippet { background: #111111; border: 1px solid #1E1E1E; border-radius: 14px; padding: 24px; text-align: left; max-width: 620px; margin: 64px auto 0; overflow-x: auto; }
         .code-pre { font-family: var(--font-geist-mono), monospace; font-size: 13px; line-height: 1.9; margin: 0; }
         .sec-px { padding-left: 24px; padding-right: 24px; }
+        .mcp-teaser-row { flex-direction: row; }
 
         @media (max-width: 640px) {
-          .nav-links { gap: 8px; }
-          .nav-link-item { display: none; }
           .hero-h1 { font-size: 30px; line-height: 1.18; }
           .hero-badge { font-size: 10px; padding: 5px 10px; margin-bottom: 20px; }
           .hero-sub { font-size: 15px; margin-bottom: 28px; }
@@ -113,6 +94,10 @@ export default function Home() {
           .footer-links { flex-wrap: wrap; gap: 14px; }
           .code-snippet { border-radius: 10px; padding: 14px; margin-top: 32px; }
           .code-pre { font-size: 11px; line-height: 1.65; }
+          .mcp-teaser-row { flex-direction: column; }
+          .ticker-wrap { max-width: 100%; }
+          .calc-card { padding: 20px 16px; }
+          .tools-label-active { font-size: 13px; }
           .section-pad { padding-top: 48px !important; padding-bottom: 48px !important; }
           .h2-mobile { font-size: 26px !important; margin-bottom: 8px !important; }
           .cta-h2 { font-size: 26px !important; }
@@ -120,31 +105,16 @@ export default function Home() {
         }
       `}</style>
 
-      {/* NAV */}
-      <nav style={s.nav}>
-        <div style={s.navInner} className="sec-px">
-          <a href="/" style={s.brand}>
-            {LOGO(36)}
-            <span style={s.brandName}>PMAxis</span>
-          </a>
-          <div className="nav-links">
-            {NAV_LINKS.map(l => (
-              <a key={l.label} href={l.href} style={s.navLink} className="nav-link-item">{l.label}</a>
-            ))}
-            <a href={`${API_URL}/login`} style={s.navLink} className="nav-link-item">Sign in</a>
-            <ThemeToggle />
-            <a href={`${API_URL}/signup`} style={s.btnGreen}>Get API key</a>
-          </div>
-        </div>
-      </nav>
+      <Nav />
 
-      <main style={{flex:1}}>
+      <main style={{flex:1, paddingTop:84}}>
 
         {/* HERO */}
-        <section style={{maxWidth:1024, margin:"0 auto", paddingTop:96, paddingBottom:80, textAlign:"center"}} className="section-pad sec-px">
+        <section style={{maxWidth:1180, margin:"0 auto", paddingTop:64, paddingBottom:80, textAlign:"center", position:"relative", zIndex:0}} className="section-pad sec-px">
+          <HeroArt />
           <div className="hero-badge" style={{background:"var(--green-dim)", color:"var(--green-text)", border:"1px solid var(--green-dim)"}}>
             <span style={{width:6, height:6, borderRadius:"50%", background:"var(--green)", display:"inline-block", flexShrink:0}}></span>
-            Live — 53,000+ markets indexed
+            Live — prediction markets, updated in real time
           </div>
           <h1 className="hero-h1 font-serif" style={{color:"var(--text)", maxWidth:700, margin:"0 auto 20px"}}>
             Prediction market data,<br/>ready for your application.
@@ -178,98 +148,101 @@ export default function Home() {
               <span style={{color:"#fff"}}> -H </span>
               <span style={{color:"#F59E0B"}}>&quot;X-API-Key: YOUR_KEY&quot;</span>{" \\\n     "}
               <span style={{color:"#6B8CFF"}}>wss://api.pmaxis.trade/stream</span>
+              <span className="term-cursor" />
             </pre>
           </div>
-        </section>
 
-        {/* STATS BAR */}
-        <section style={{borderTop:"1px solid var(--border)", borderBottom:"1px solid var(--border)", background:"var(--surface)"}}>
-          <div className="stats-grid">
-            {[{v:"53,000+",l:"Markets indexed"},{v:"916K+",l:"On-chain trades"},{v:"< 100ms",l:"API latency"},{v:"Free",l:"To start"}].map(x=>(
-              <div key={x.l}>
-                <div className="stat-val">{x.v}</div>
-                <div style={{fontSize:13, color:"var(--muted)", marginTop:4}}>{x.l}</div>
-              </div>
-            ))}
+          <div style={{marginTop:40}}>
+            <Ticker />
           </div>
         </section>
 
-        {/* FEATURES */}
-        <section style={{...s.section, paddingTop:96, paddingBottom:96}} className="section-pad sec-px">
-          <h2 style={s.h2} className="h2-mobile">Everything your app needs</h2>
-          <p style={s.sub}>One integration gives you access to the full prediction market data stack.</p>
-          <div className="features-grid">
-            {FEATURES.map(f=>(
-              <div key={f.title} style={s.card}>
-                <div style={{color:"var(--green)", marginBottom:16}}>{f.icon}</div>
-                <div style={{fontSize:15, fontWeight:600, color:"var(--text)", marginBottom:8}}>{f.title}</div>
-                <div style={{fontSize:13, color:"var(--muted)", lineHeight:1.6}}>{f.body}</div>
-              </div>
-            ))}
-          </div>
-        </section>
+        {/* TOOLS SHOWCASE */}
+        <Reveal>
+          <section style={{...s.section, paddingTop:112, paddingBottom:96}} className="section-pad sec-px">
+            <div className="eyebrow">01 — Tools</div>
+            <h2 className="section-h2 h2-mobile">Powerful tools, easy to use</h2>
+            <p className="section-sub">Every data type PMAxis exposes, with a real endpoint and a real response shape. Pick one to see it.</p>
+            <ToolsShowcase />
+          </section>
+        </Reveal>
+
+        {/* MCP TEASER */}
+        <Reveal>
+          <section style={{...s.section, paddingTop:96, paddingBottom:96, display:"flex", alignItems:"flex-start", justifyContent:"space-between", gap:40, flexWrap:"wrap"}} className="mcp-teaser-row section-pad sec-px">
+            <div style={{maxWidth:480}}>
+              <div className="eyebrow">02 — Agents</div>
+              <h2 className="section-h2 h2-mobile">Built for AI agents, not just apps</h2>
+              <p style={{...s.sub, marginBottom:32}}>
+                Connect Claude, Cursor, Windsurf, or any MCP-compatible agent directly to PMAxis. 60+ tools for market discovery, wallet analysis, and live signals — no scraping, no glue code.
+              </p>
+              <a href="/mcp" style={{...s.btnOutline, display:"inline-flex", alignItems:"center", gap:8}}>
+                Explore MCP tools
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+              </a>
+            </div>
+            <div style={{flex:"1 1 320px", maxWidth:400}}>
+              <AgentFlow />
+            </div>
+          </section>
+        </Reveal>
+
+        {/* USE CASES */}
+        <Reveal>
+          <section style={{...s.section, paddingTop:96, paddingBottom:96}} className="section-pad sec-px">
+            <div className="eyebrow">03 — Built for</div>
+            <h2 className="section-h2 h2-mobile">One API, every kind of builder</h2>
+            <p className="section-sub">From automated bots to research notebooks — the same endpoints, different jobs.</p>
+            <UseCases />
+          </section>
+        </Reveal>
 
         {/* ENDPOINTS */}
-        <section style={{background:"var(--surface)", borderTop:"1px solid var(--border)", borderBottom:"1px solid var(--border)"}}>
-          <div style={{...s.section, paddingTop:96, paddingBottom:96}} className="section-pad sec-px">
-            <h2 style={s.h2} className="h2-mobile">Clean, predictable API</h2>
-            <p style={s.sub}>Standard REST conventions. JSON responses. One header for auth.</p>
-            <div style={{border:"1px solid var(--border)", borderRadius:12, overflow:"hidden"}}>
-              {ENDPOINTS.map((e,i)=>(
-                <div key={e.path} className="endpoint-row" style={{borderBottom: i<ENDPOINTS.length-1?"1px solid var(--border)":"none", background:"var(--surface)"}}>
-                  <span style={{fontFamily:"monospace", fontSize:11, fontWeight:700, padding:"2px 8px", borderRadius:4, width:44, textAlign:"center", flexShrink:0,
-                    background: e.method==="WS" ? "var(--tag-ws)" : "var(--tag-get)",
-                    color: e.method==="WS" ? "var(--tag-ws-text)" : "var(--tag-get-text)"
-                  }}>{e.method}</span>
-                  <code style={{fontFamily:"monospace", fontSize:13, color:"var(--text)", flex:1, wordBreak:"break-all"}}>{e.path}</code>
-                  <span className="endpoint-desc">{e.desc}</span>
+        <Reveal>
+          <section style={{...s.section, paddingTop:96, paddingBottom:96}} className="section-pad sec-px">
+            <div className="eyebrow">04 — Reference</div>
+            <h2 className="section-h2 h2-mobile">Clean, predictable API</h2>
+            <p className="section-sub">Standard REST conventions. JSON responses. One header for auth.</p>
+            <div className="endpoint-groups">
+              {ENDPOINT_GROUPS.map(group => (
+                <div key={group.label} className="endpoint-group">
+                  <div className="endpoint-group-label">{group.label}</div>
+                  {group.endpoints.map(e=>(
+                    <a key={e.path} href={`${API_URL}/docs`} className="endpoint-row">
+                      <span style={{fontFamily:"monospace", fontSize:11, fontWeight:700, padding:"2px 8px", borderRadius:4, width:44, textAlign:"center", flexShrink:0,
+                        background: e.method==="WS" ? "var(--tag-ws)" : "var(--tag-get)",
+                        color: e.method==="WS" ? "var(--tag-ws-text)" : "var(--tag-get-text)"
+                      }}>{e.method}</span>
+                      <code style={{fontFamily:"monospace", fontSize:13, color:"var(--text)", flex:1, wordBreak:"break-all"}}>{e.path}</code>
+                      <span className="endpoint-desc">{e.desc}</span>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="endpoint-arrow"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                    </a>
+                  ))}
                 </div>
               ))}
             </div>
             <div style={{marginTop:24, textAlign:"center"}}>
               <a href={`${API_URL}/docs`} style={{fontSize:13, color:"var(--muted)", textDecoration:"underline", textUnderlineOffset:4}}>View full API reference</a>
             </div>
-          </div>
-        </section>
+          </section>
+        </Reveal>
+
+        {/* DEV PLATFORM */}
+        <Reveal>
+          <section style={{...s.section, paddingTop:96, paddingBottom:96}} className="section-pad sec-px">
+            <DevPlatform />
+          </section>
+        </Reveal>
 
         {/* PRICING */}
-        <section style={{...s.section, paddingTop:96, paddingBottom:96}} className="section-pad sec-px">
-          <h2 style={s.h2} className="h2-mobile">Simple pricing</h2>
-          <p style={s.sub}>Start free. Scale when you need to.</p>
-          <div className="pricing-grid">
-            {TIERS.map(t=>(
-              <div key={t.name} style={{...s.card, display:"flex", flexDirection:"column", position:"relative", opacity: t.soon ? 0.7 : 1}}>
-                {t.soon && (
-                  <div style={{position:"absolute", top:16, right:16, fontSize:10, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.1em", background:"var(--surface2)", color:"var(--muted)", padding:"3px 8px", borderRadius:999, border:"1px solid var(--border)"}}>
-                    Coming soon
-                  </div>
-                )}
-                <div style={{fontSize:11, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.1em", color:"var(--green)", marginBottom:16}}>{t.name}</div>
-                <div style={{display:"flex", alignItems:"baseline", gap:4, marginBottom:4}}>
-                  <span style={{fontSize:32, fontWeight:700, letterSpacing:"-0.02em", color:"var(--text)"}}>{t.price}</span>
-                  {t.period && <span style={{fontSize:13, color:"var(--muted)"}}>{t.period}</span>}
-                </div>
-                <div style={{fontSize:13, color:"var(--muted)", marginBottom:24}}>{t.limit}</div>
-                <ul style={{flex:1, listStyle:"none", padding:0, margin:"0 0 32px", display:"flex", flexDirection:"column", gap:10}}>
-                  {t.features.map(f=>(
-                    <li key={f} style={{display:"flex", alignItems:"flex-start", gap:10, fontSize:13, color:"var(--muted)"}}>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--green)" strokeWidth="2.5" style={{flexShrink:0, marginTop:1}}><polyline points="20 6 9 17 4 12"/></svg>
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-                <a href={t.href} style={{display:"block", textAlign:"center", fontSize:13, fontWeight:700, padding:"12px", borderRadius:6, textDecoration:"none",
-                  background: t.soon ? "var(--surface2)" : "var(--text)",
-                  color: t.soon ? "var(--muted)" : "var(--bg)",
-                  pointerEvents: t.soon ? "none" as const : "auto" as const,
-                  border: "1px solid var(--border)",
-                }}>
-                  {t.cta}
-                </a>
-              </div>
-            ))}
-          </div>
-        </section>
+        <Reveal>
+          <section style={{...s.section, paddingTop:96, paddingBottom:96}} className="section-pad sec-px">
+            <div className="eyebrow">06 — Pricing</div>
+            <h2 className="section-h2 h2-mobile">Simple pricing</h2>
+            <p className="section-sub">Start free. Scale when you need to.</p>
+            <PricingCalculator />
+          </section>
+        </Reveal>
 
         {/* CTA */}
         <section style={{background:"var(--text)", borderTop:"1px solid var(--border)"}}>

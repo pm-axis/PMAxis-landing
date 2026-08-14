@@ -1,6 +1,9 @@
 "use client";
 import { useState } from "react";
-import ThemeToggle from "../ThemeToggle";
+import Nav from "../Nav";
+import Reveal from "../Reveal";
+import HeroArt from "../HeroArt";
+import { highlightJSON } from "../highlight";
 
 const API_URL = "https://api.pmaxis.trade";
 const MCP_URL = "https://mcp.pmaxis.trade";
@@ -240,15 +243,7 @@ export default function McpPage() {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
-
-        .mcp-page { font-family: 'Space Grotesk', 'Helvetica Neue', sans-serif; }
-
-        /* nav */
-        .mcp-nav-link { font-size: 13px; color: var(--muted); text-decoration: none; font-weight: 500; transition: color 0.15s; }
-        .mcp-nav-link:hover { color: var(--text); }
-        .mcp-nav-link.active { color: var(--text); font-weight: 600; }
-        .hide-mobile { display: block; }
+        .mcp-page { font-family: var(--font-geist-sans), 'Helvetica Neue', sans-serif; }
 
         /* hero */
         .mcp-hero { background: ${B.black}; padding: 88px 24px 80px; text-align: center; position: relative; overflow: hidden; }
@@ -267,7 +262,8 @@ export default function McpPage() {
           position: relative;
         }
         .mcp-hero-h1 {
-          font-size: 52px; font-weight: 700; line-height: 1.06; letter-spacing: -0.03em;
+          font-family: var(--font-serif), Georgia, serif; font-weight: 400;
+          font-size: 56px; line-height: 1.08; letter-spacing: -0.02em;
           color: ${B.white}; max-width: 660px; margin: 0 auto 20px; position: relative;
         }
         .mcp-grad-text {
@@ -284,25 +280,18 @@ export default function McpPage() {
           background: ${B.grad}; color: ${B.black};
           font-size: 14px; font-weight: 700; padding: 13px 30px;
           border-radius: 6px; text-decoration: none; position: relative;
-          font-family: 'Space Grotesk', sans-serif;
+          font-family: var(--font-geist-sans), sans-serif;
           transition: opacity 0.15s;
         }
         .mcp-hero-cta:hover { opacity: 0.88; }
 
         /* section */
-        .mcp-section { max-width: 1020px; margin: 0 auto; padding: 72px 24px; }
-        .mcp-section-dark { background: ${B.black}; }
-        .mcp-section-surf { background: var(--surface); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
-        .mcp-h2 { font-size: 34px; font-weight: 700; letter-spacing: -0.025em; color: var(--text); margin-bottom: 10px; }
-        .mcp-h2-dark { color: ${B.white}; }
-        .mcp-sub { font-size: 15px; color: var(--muted); line-height: 1.7; max-width: 460px; margin-bottom: 48px; }
-        .mcp-sub-dark { color: ${B.grey}; }
-        .mcp-divider { border: none; border-top: 1px solid var(--border); margin: 0; }
+        .mcp-section { max-width: 1180px; margin: 0 auto; padding: 72px 24px; }
 
         /* agent tabs */
         .agent-tabs { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 32px; }
         .agent-tab {
-          font-family: 'Space Grotesk', sans-serif;
+          font-family: var(--font-geist-sans), sans-serif;
           font-size: 13px; font-weight: 600;
           padding: 8px 18px; border-radius: 6px; cursor: pointer;
           border: 1px solid var(--border);
@@ -317,8 +306,8 @@ export default function McpPage() {
         .config-dots { display: flex; gap: 6px; }
         .config-dot { width: 10px; height: 10px; border-radius: 50%; }
         .config-label { font-size: 11px; color: #555; font-family: monospace; }
-        .config-pre { background: #0d0d0d; padding: 20px 24px; font-family: 'Space Grotesk', monospace; font-size: 13px; line-height: 1.9; color: #e4e4e4; overflow-x: auto; margin: 0; white-space: pre; }
-        .config-copy { font-family: 'Space Grotesk', sans-serif; font-size: 11px; font-weight: 600; background: transparent; border: 1px solid #333; color: #888; border-radius: 4px; padding: 4px 10px; cursor: pointer; transition: all 0.15s; }
+        .config-pre { background: #0d0d0d; padding: 20px 24px; font-family: var(--font-geist-mono), monospace; font-size: 13px; line-height: 1.9; color: #e4e4e4; overflow-x: auto; margin: 0; white-space: pre; }
+        .config-copy { font-family: var(--font-geist-sans), sans-serif; font-size: 11px; font-weight: 600; background: transparent; border: 1px solid #333; color: #888; border-radius: 4px; padding: 4px 10px; cursor: pointer; transition: all 0.15s; }
         .config-copy:hover { border-color: ${B.green}; color: ${B.green}; }
 
         /* path box */
@@ -341,31 +330,33 @@ export default function McpPage() {
         .prompt-text { font-size: 14px; color: var(--text); line-height: 1.55; font-weight: 500; }
 
         /* tools */
-        .tool-group-label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); padding-bottom: 12px; border-bottom: 1px solid var(--border); margin-bottom: 16px; }
-        .tool-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; margin-bottom: 44px; }
-        .tool-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 16px 18px; transition: border-color 0.15s; }
-        .tool-card:hover { border-color: ${B.greenBorder}; }
-        .tool-name { font-family: monospace; font-size: 13px; font-weight: 600; color: ${B.green}; margin-bottom: 6px; }
-        .tool-desc { font-size: 13px; color: var(--muted); line-height: 1.55; }
+        .tool-group-label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); padding-bottom: 12px; border-bottom: 1px solid var(--border); margin-bottom: 4px; }
+        .tool-list { column-count: 2; column-gap: 40px; }
+        .tool-row {
+          display: flex; align-items: baseline; gap: 14px; padding: 11px 0;
+          border-bottom: 1px solid var(--border); break-inside: avoid;
+          border-radius: 8px; transition: background 0.15s;
+        }
+        .tool-row:hover { background: var(--surface); margin: 0 -14px; padding: 11px 14px; }
+        .tool-name { font-family: var(--font-geist-mono), monospace; font-size: 12.5px; font-weight: 600; color: var(--green-text); flex-shrink: 0; white-space: nowrap; }
+        .tool-desc { flex: 1; min-width: 0; font-size: 12.5px; color: var(--muted); line-height: 1.5; }
 
         /* cta dark */
         .mcp-cta-dark { background: ${B.black}; border-top: 1px solid #1a1a1a; }
-        .mcp-cta-inner { max-width: 1020px; margin: 0 auto; padding: 80px 24px; text-align: center; }
+        .mcp-cta-inner { max-width: 1180px; margin: 0 auto; padding: 80px 24px; text-align: center; }
         .mcp-cta-h2 { font-size: 40px; font-weight: 700; letter-spacing: -0.025em; color: ${B.white}; margin-bottom: 16px; }
         .mcp-cta-sub { font-size: 15px; color: ${B.grey}; margin-bottom: 40px; max-width: 380px; margin-left: auto; margin-right: auto; line-height: 1.7; }
 
         /* footer */
-        .mcp-footer-inner { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; padding: 32px 24px; max-width: 1020px; margin: 0 auto; }
+        .mcp-footer-inner { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; padding: 32px 24px; max-width: 1180px; margin: 0 auto; }
         .mcp-footer-links { display: flex; gap: 24px; flex-wrap: wrap; }
 
         @media (max-width: 640px) {
-          .hide-mobile { display: none; }
           .mcp-hero-h1 { font-size: 30px; }
           .mcp-hero { padding: 60px 16px 56px; }
           .mcp-section { padding: 48px 16px; }
-          .mcp-h2 { font-size: 26px; }
           .mcp-cta-h2 { font-size: 28px; }
-          .tool-grid { grid-template-columns: 1fr; }
+          .tool-list { column-count: 1; }
           .agent-tabs { gap: 8px; }
           .agent-tab { font-size: 12px; padding: 7px 12px; }
           .mcp-footer-inner { flex-direction: column; align-items: flex-start; }
@@ -374,26 +365,11 @@ export default function McpPage() {
 
       <div className="mcp-page">
 
-        {/* ── NAV ── */}
-        <nav style={{ position:"sticky", top:0, zIndex:50, background:"var(--bg)", borderBottom:"1px solid var(--border)", backdropFilter:"blur(8px)" }}>
-          <div style={{ maxWidth:1020, margin:"0 auto", padding:"0 24px", height:68, display:"flex", alignItems:"center", justifyContent:"space-between" }}>
-            <a href="/" style={{ display:"flex", alignItems:"center", gap:10, textDecoration:"none" }}>
-              {LOGO(32)}
-              <span style={{ fontSize:18, fontWeight:700, letterSpacing:"-0.02em", color:"var(--text)", fontFamily:"'Space Grotesk', sans-serif" }}>PMAxis</span>
-            </a>
-            <div style={{ display:"flex", alignItems:"center", gap:24 }}>
-              <a href={`${API_URL}/docs`} className="mcp-nav-link hide-mobile">Docs</a>
-              <a href={`${API_URL}/status`} className="mcp-nav-link hide-mobile">Status</a>
-              <a href="/mcp" className="mcp-nav-link active hide-mobile">MCP</a>
-              <a href={`${API_URL}/login`} className="mcp-nav-link hide-mobile">Sign in</a>
-              <ThemeToggle />
-              <a href={`${API_URL}/signup`} style={{ fontSize:13, fontWeight:700, background:B.grad, color:B.black, padding:"8px 18px", borderRadius:5, textDecoration:"none", fontFamily:"'Space Grotesk', sans-serif" }}>Get API key</a>
-            </div>
-          </div>
-        </nav>
+        <Nav active="mcp" />
 
         {/* ── HERO ── */}
-        <div className="mcp-hero">
+        <div className="mcp-hero" style={{ paddingTop: 84, zIndex: 0 }}>
+          <HeroArt />
           <div className="mcp-hero-badge">
             <span style={{ width:6, height:6, borderRadius:"50%", background:B.green, display:"inline-block" }}></span>
             Model Context Protocol · {TOOL_COUNT} live tools
@@ -403,7 +379,7 @@ export default function McpPage() {
             <span className="mcp-grad-text">any prediction market.</span>
           </h1>
           <p className="mcp-hero-sub">
-            Connect Claude, Cursor, Windsurf, or any MCP-compatible agent to live PMAxis data — prices, orderbooks, signals, and wallet history across 53,000+ markets.
+            Connect Claude, Cursor, Windsurf, or any MCP-compatible agent to live PMAxis data — prices, orderbooks, signals, and wallet history across every prediction market we index.
           </p>
           <a href={`${API_URL}/signup`} className="mcp-hero-cta">
             Get free API key
@@ -411,12 +387,12 @@ export default function McpPage() {
           </a>
         </div>
 
-        <hr className="mcp-divider" />
-
         {/* ── SETUP GUIDE ── */}
-        <section style={{ maxWidth:1020, margin:"0 auto", padding:"72px 24px" }}>
-          <h2 className="mcp-h2">Connect your agent</h2>
-          <p className="mcp-sub">
+        <Reveal>
+        <section style={{ maxWidth:1180, margin:"0 auto", padding:"96px 24px 72px" }}>
+          <div className="eyebrow">01 — Setup</div>
+          <h2 className="section-h2">Connect your agent</h2>
+          <p className="section-sub">
             Pick your agent below. Each has a different config format — the right one is shown automatically.
           </p>
 
@@ -510,7 +486,10 @@ export default function McpPage() {
                       setTimeout(() => { btn.textContent = "Copy"; }, 2000);
                     }}>Copy</button>
                   </div>
-                  <pre className="config-pre">{AGENT_CONFIGS[agent]}</pre>
+                  <pre
+                    className="config-pre"
+                    dangerouslySetInnerHTML={{ __html: highlightJSON(AGENT_CONFIGS[agent]) + '<span class="term-cursor"></span>' }}
+                  />
                 </div>
 
                 <div className="note-box">{note.note}</div>
@@ -536,50 +515,51 @@ export default function McpPage() {
             )}
           </div>
         </section>
-
-        <hr className="mcp-divider" />
+        </Reveal>
 
         {/* ── PROMPTS ── */}
-        <div className="mcp-section-surf">
-          <div className="mcp-section">
-            <h2 className="mcp-h2">What to ask</h2>
-            <p className="mcp-sub">
-              Once connected, ask naturally. Your agent picks the right tools automatically.
-            </p>
-            <div>
-              {PROMPTS.map((p, i) => (
-                <div key={i} className="prompt-item">
-                  <span className="prompt-arrow">›</span>
-                  <span className="prompt-text">{p}</span>
-                </div>
-              ))}
-            </div>
+        <Reveal>
+        <div className="mcp-section">
+          <div className="eyebrow">02 — Prompts</div>
+          <h2 className="section-h2">What to ask</h2>
+          <p className="section-sub">
+            Once connected, ask naturally. Your agent picks the right tools automatically.
+          </p>
+          <div>
+            {PROMPTS.map((p, i) => (
+              <div key={i} className="prompt-item">
+                <span className="prompt-arrow">›</span>
+                <span className="prompt-text">{p}</span>
+              </div>
+            ))}
           </div>
         </div>
-
-        <hr className="mcp-divider" />
+        </Reveal>
 
         {/* ── TOOLS ── */}
+        <Reveal>
         <div className="mcp-section">
-          <h2 className="mcp-h2">{TOOL_COUNT} tools, live data</h2>
-          <p className="mcp-sub">Every tool calls the PMAxis REST API in real time. No stale data.</p>
-          <p className="mcp-sub" style={{ marginTop: -32 }}>
+          <div className="eyebrow">03 — Tools</div>
+          <h2 className="section-h2">{TOOL_COUNT} tools, live data</h2>
+          <p className="section-sub">Every tool calls the PMAxis REST API in real time. No stale data.</p>
+          <p className="section-sub" style={{ marginTop: -20 }}>
             <strong>Cursor, Windsurf, and the Python SDK connect via the hosted SSE server and get all {TOOL_COUNT} tools.</strong> The <code style={{ fontFamily:"monospace", background:"var(--surface)", border:"1px solid var(--border)", borderRadius:4, padding:"2px 6px", fontSize:12 }}>@pmaxis/mcp-server</code> npm package (used by the Claude Desktop / npm setup above) is on an older release and currently exposes 34 of these — the newer wallet-calibration, wallet-clustering, and orderbook-history tools aren&apos;t in it yet. Prefer Cursor/Windsurf/Python if you need full coverage today.
           </p>
           {TOOL_GROUPS.map(group => (
-            <div key={group.label}>
+            <div key={group.label} style={{ marginBottom: 40 }}>
               <div className="tool-group-label">{group.label}</div>
-              <div className="tool-grid">
+              <div className="tool-list">
                 {group.tools.map(tool => (
-                  <div key={tool.name} className="tool-card">
-                    <div className="tool-name">{tool.name}</div>
-                    <div className="tool-desc">{tool.desc}</div>
+                  <div key={tool.name} className="tool-row">
+                    <code className="tool-name">{tool.name}</code>
+                    <span className="tool-desc">{tool.desc}</span>
                   </div>
                 ))}
               </div>
             </div>
           ))}
         </div>
+        </Reveal>
 
         {/* ── CTA ── */}
         <div className="mcp-cta-dark">
@@ -590,7 +570,7 @@ export default function McpPage() {
             <p className="mcp-cta-sub">Free API key. No credit card. All {TOOL_COUNT} tools on the free tier.</p>
             <div style={{ display:"flex", gap:14, justifyContent:"center", flexWrap:"wrap" }}>
               <a href={`${API_URL}/signup`} className="mcp-hero-cta">Get free API key</a>
-              <a href={`${API_URL}/docs`} style={{ display:"inline-flex", alignItems:"center", fontSize:14, fontWeight:600, color:B.grey, padding:"13px 28px", borderRadius:6, textDecoration:"none", border:`1px solid #2a2a2a`, fontFamily:"'Space Grotesk', sans-serif", transition:"border-color 0.15s" }}>
+              <a href={`${API_URL}/docs`} style={{ display:"inline-flex", alignItems:"center", fontSize:14, fontWeight:600, color:B.grey, padding:"13px 28px", borderRadius:6, textDecoration:"none", border:`1px solid #2a2a2a`, fontFamily:"var(--font-geist-sans), sans-serif", transition:"border-color 0.15s" }}>
                 API reference
               </a>
             </div>
@@ -602,14 +582,14 @@ export default function McpPage() {
           <div className="mcp-footer-inner">
             <div style={{ display:"flex", alignItems:"center", gap:10 }}>
               {LOGO(24)}
-              <span style={{ fontSize:14, fontWeight:600, color:"var(--text)", fontFamily:"'Space Grotesk', sans-serif" }}>PMAxis</span>
+              <span style={{ fontSize:14, fontWeight:600, color:"var(--text)", fontFamily:"var(--font-geist-sans), sans-serif" }}>PMAxis</span>
             </div>
             <div className="mcp-footer-links">
               {[["Docs",`${API_URL}/docs`],["Status",`${API_URL}/status`],["MCP","/mcp"],["Sign up",`${API_URL}/signup`],["Login",`${API_URL}/login`]].map(([l,h])=>(
-                <a key={l} href={h} style={{ fontSize:12, color:"var(--muted)", textDecoration:"none", fontFamily:"'Space Grotesk', sans-serif" }}>{l}</a>
+                <a key={l} href={h} style={{ fontSize:12, color:"var(--muted)", textDecoration:"none", fontFamily:"var(--font-geist-sans), sans-serif" }}>{l}</a>
               ))}
             </div>
-            <div style={{ fontSize:12, color:"var(--muted)", fontFamily:"'Space Grotesk', sans-serif" }}>© 2026 PMAxis. All rights reserved.</div>
+            <div style={{ fontSize:12, color:"var(--muted)", fontFamily:"var(--font-geist-sans), sans-serif" }}>© 2026 PMAxis. All rights reserved.</div>
           </div>
         </footer>
 

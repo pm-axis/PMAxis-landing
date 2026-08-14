@@ -28,11 +28,32 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     >
       <head>
         <link rel="icon" href="/loader-gif.gif" type="image/gif" />
+        <link rel="llms.txt" href="/llms.txt" />
         {/* Apply theme before paint to avoid flash */}
         <script dangerouslySetInnerHTML={{ __html: `(function(){try{var m=document.cookie.match(/pmaxis-theme=(light|dark)/);var t=m?m[1]:(localStorage.getItem('pmaxis-theme')||'light');document.documentElement.setAttribute('data-theme',t);}catch(e){}})();` }} />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "SoftwareApplication",
+              name: "PMAxis",
+              applicationCategory: "DeveloperApplication",
+              description: "Real-time REST API, WebSocket stream, and MCP server for prediction market prices, orderbooks, trades, signals, and on-chain wallet data.",
+              url: "https://pmaxis.trade",
+              offers: { "@type": "Offer", price: "0", priceCurrency: "USD", description: "Free tier — 5,000 credits/month" },
+              featureList: [
+                "Real-time prediction market prices and orderbooks",
+                "WebSocket streaming",
+                "On-chain wallet analytics",
+                "Model Context Protocol (MCP) server for AI agents",
+              ],
+            }),
+          }}
+        />
       </head>
       <body className="min-h-full flex flex-col" style={{background:"var(--bg)",color:"var(--text)",transition:"background 0.2s,color 0.2s"}}>
-        <div id="__loader" style={{position:"fixed",inset:0,zIndex:9999,background:"var(--bg,#F7F6F3)",display:"flex",alignItems:"center",justifyContent:"center"}}>
+        <div id="__loader" suppressHydrationWarning style={{position:"fixed",inset:0,zIndex:9999,background:"var(--bg,#F7F6F3)",display:"flex",alignItems:"center",justifyContent:"center"}}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/loader-gif.gif" width={80} height={80} alt="" />
         </div>
